@@ -2,7 +2,7 @@
 
 环境
 
-1. 服务端 nodejs
+1. 服务端 nodejs v10.16.0
 2. 前端 express 框架配合原生js
 
 需求
