@@ -1,0 +1,31 @@
+.form-sheet {
+	padding: 5px 5px 5px 5px;
+	margin-top: 10px;
+}
+.form-sheet .item-name{
+	margin: 10px 0px;
+}
+.form-sheet .item-name label{
+	margin: 0px 10px 0px 0px;
+	color: black;
+}
+.form-sheet textarea {
+	resize: none;
+}
+
+.list-sheet {
+	padding: 5px 5px 5px 5px;
+	margin-top: 10px;
+	height: 500px;
+	width: 800px;
+	overflow: scroll;
+	overflow-x: hidden;
+	border: 1px dashed lightgrey;
+}
+
+.list-sheet tr.title th {
+	margin: 2px 2px 2px 2px;
+}
+.list-sheet a {
+	cursor: pointer;
+}

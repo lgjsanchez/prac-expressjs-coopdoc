@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Welcome WebEditor</title>
+		<link href="/css/style.css" rel="stylesheet" type="text/css" />
+		<link href="/css/page.css" rel="stylesheet" type="text/css" />
+	</head>
+	<body>
+		<h1>WelCome WebEditor</h1>
+		<h2>请保存你的第一个文件吧</h2>
+		<h2>save your first file here</h2>
+		
+		<div class="form-sheet">
+			<form action="" onclick="return false">
+				<div class="item-name">
+					<label>file name：</label>
+					<input type="text"  name="fileName" placeholder="input file name" />
+				</div>
+				<div class="item-name">
+					<textarea  name="fileContents"
+						placeholder="write something into the file." 
+						maxlength="100000"
+						rows="20"
+						cols="80"
+					></textarea>
+				</div>
+				<input type="button" name="save" value="save" />
+			</form>
+		</div>
+		
+		<script src="/js/axios.min.js"></script>
+		<script src="/js/new.js"></script>
+	</body>
+</html>

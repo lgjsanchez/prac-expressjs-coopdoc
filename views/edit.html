@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Welcome WebEditor</title>
+		<link href="/css/style.css" rel="stylesheet" type="text/css" />
+		<link href="/css/page.css" rel="stylesheet" type="text/css" />
+	</head>
+	<body>
+		<h1>WebEditor</h1>
+		<h2>您将有一分钟的时间编辑你的文件</h2>
+		<h2>you are given a one minute lease to edit</h2>
+		
+		<div class="form-sheet">
+			<form action="" onclick="return false">
+				<div class="item-name">
+					<label>file name：<%= fileName %></label>
+				</div>
+				<div class="item-name">
+					<textarea  name="fileContents"
+						placeholder="write something into the file." 
+						maxlength="100000"
+						rows="20"
+						cols="80"
+					><%= fileContents %></textarea>
+				</div>
+				<input type="button" data-id="<%= id %>" data-version="<%= version %>" name="save" value="save" />
+			</form>
+		</div>
+		
+		<script src="/js/axios.min.js"></script>
+		<script src="/js/jquery.min.js"></script>
+		<script src="/js/edit.js"></script>
+	</body>
+</html>
