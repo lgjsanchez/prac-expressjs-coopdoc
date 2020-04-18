@@ -46,7 +46,6 @@ locker.get = (fileId, owner) => {
 										console.log("释放一个文件锁失败: ", err);
 										return reject(_status.ERROR);
 									};
-									console.log(1, owner)
 									
 								    Lock.create({"_id": fileId, "owner": owner, "timeout": timeOut, "lockTime": Date.now()}, (err, data) => {
 								    	// 加锁失败
@@ -55,7 +54,6 @@ locker.get = (fileId, owner) => {
 								    		return reject(_status.ERROR);
 								    	}
 								    	
-										console.log(2, owner)
 								    	// 获取锁成功
 								    	resolve(_status.VALID_OWN);
 								    });
@@ -69,7 +67,7 @@ locker.get = (fileId, owner) => {
 										console.log("添加锁信息失败: ", err);
 										return reject(_status.ERROR);
 									}
-									console.log(3, owner)
+
 									// 获取锁成功
 									resolve(_status.VALID_OWN);
 								});
