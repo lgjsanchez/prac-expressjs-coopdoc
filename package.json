@@ -1,11 +1,12 @@
 {
   "name": "webeditor",
-  "version": "0.0.0",
+  "author": "lgjsanchez",
+  "version": "0.0.1",
   "private": true,
   "scripts": {
     "start": "node ./bin/www"
   },
-  "dependencies": {
+  "devDependencies": {
     "async-lock": "^1.2.2",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
