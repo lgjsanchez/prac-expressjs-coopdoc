@@ -13,7 +13,7 @@
 运行下面指令，浏览器访问`localhost:8080`即可：
 
 ```bash
-npm install
+npm install --save-dev
 npm start
 ```
 
