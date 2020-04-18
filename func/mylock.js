@@ -25,7 +25,7 @@ const locker = {
 asyncLock = new AsyncLock();
 
 // 定义超时时间
-const timeOut = 1000 * 15;
+const timeOut = 1000 * 60;
 
 // 获得一个文件的锁
 locker.get = (fileId, owner) => {
