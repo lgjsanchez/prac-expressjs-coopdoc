@@ -6,7 +6,7 @@ const cookieParser = require('cookie-parser'); // 解析Cookie的工具。通过
 const logger = require('morgan');
 const indexRouter = require('./routes/index');
 const serviceRouter = require('./routes/service');
-const mongoConnect = require('./func/mongoConnect');
+const mongoConnect = require('./config/mongoConnect');
 const app = express();
 
 
