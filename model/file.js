@@ -21,7 +21,7 @@ var schema = new Schema({
 	    type: Date,
 	    default : Date.now()
 	},
-	// 版本号
+	// 乐观锁版本号
 	version: {
 		type: Number,
 		default: 1

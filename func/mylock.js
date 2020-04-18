@@ -1,8 +1,7 @@
 const express = require('express');
 const AsyncLock = require('async-lock');
 const mongoose = require('mongoose');  // 引入mongoose
-const File = require('../model/file'); // 定义文件数据模型
-const Lock = require('../model/lock'); // 定义文件数据模型
+const Lock = require('../model/lock');
 
 // 定义各种锁拥有状态
 const _status = {
@@ -14,7 +13,7 @@ const _status = {
 	VALID_OTH: 4, // 锁存在他人持有
 }
 
-// 定义锁操作
+// 定义锁操作 方法返回体都以Promise方式构造
 const locker = {
 	get: null, // 获取锁
 	release: null, // 释放锁
@@ -26,58 +25,61 @@ const locker = {
 asyncLock = new AsyncLock();
 
 // 定义超时时间
-const timeOut = 1000 * 10;
+const timeOut = 1000 * 15;
 
 // 获得一个文件的锁
 locker.get = (fileId, owner) => {
 	return locker.hold(fileId, owner)
-	.then(
-		(status) => {
-			return Promise.resolve(status);
-		},
-		(status) => {
-			// 加锁
-			return new Promise((resolve, reject) => {
-				switch(status) {
-					// 更新过期锁 成为新锁
-					case _status.EXPIRE: 
-						Lock.updateOne({"_id": fileId},
-							{owner: owner, lockTime: Date.now()}, 
-							(err, data) => {
-								// 更新锁信息失败 则获取锁失败
-								if (err) {
-									console.log("更新锁信息失败: ", err);
-									return reject(_status.ERROR);
-								}
-								
-								// 获取锁成功
-								resolve(_status.VALID_OWN);
-						});
-						break;
-						
-					// 没有锁 创建
-					case _status.NOFOUND: 
-						Lock.create({
-							"_id": fileId,
-							owner: owner,
-							timeout: timeOut
-						}, (err, data) => {
-							// 加锁失败
-						    if (err) {
-								console.log("添加锁信息失败: ", err);
-								return reject(_status.ERROR);
-							}
-							
-							// 获取锁成功
-							resolve(_status.VALID_OWN);
-						});
-						break;
-					// 其它状态 获取锁失败
-					default: reject(status);
-				}	
-			});
-		}
-	);
+			.then(
+				(status) => {
+					// 自己持有锁 直接返回
+					return Promise.resolve(status);
+				},
+				(status) => {
+					// 未持有锁 但是存在多种情况
+					return new Promise((resolve, reject) => {
+						switch(status) {
+							// 旧锁过期 先删除 后新建 避免脏数据更新失效
+							case _status.EXPIRE: 
+								Lock.deleteOne({"_id": fileId}, (err, data) => {
+								    if (err) {
+										console.log("释放一个文件锁失败: ", err);
+										return reject(_status.ERROR);
+									};
+									console.log(1, owner)
+									
+								    Lock.create({"_id": fileId, "owner": owner, "timeout": timeOut, "lockTime": Date.now()}, (err, data) => {
+								    	// 加锁失败
+								    	if (err) {
+								    		console.log("添加锁信息失败: ", err);
+								    		return reject(_status.ERROR);
+								    	}
+								    	
+										console.log(2, owner)
+								    	// 获取锁成功
+								    	resolve(_status.VALID_OWN);
+								    });
+								});
+								break;
+							// 没有锁 直接新建获得锁
+							case _status.NOFOUND: 
+								Lock.create({"_id": fileId, "owner": owner, "timeout": timeOut, "lockTime": Date.now()}, (err, data) => {
+									// 加锁失败
+									if (err) {
+										console.log("添加锁信息失败: ", err);
+										return reject(_status.ERROR);
+									}
+									console.log(3, owner)
+									// 获取锁成功
+									resolve(_status.VALID_OWN);
+								});
+								break;
+							// 其它状态 获取锁失败
+							default: reject(status);
+						}	
+					});
+				}
+			);
 }
 
 // 释放一个文件锁
@@ -90,7 +92,7 @@ locker.release = (fileId, ip) => {
 	return new Promise((resolve, reject) => {
 		// 判断是否已经有锁
 		Lock.findOne({"_id": fileId}, (err, data) => {
-			// 查询出错 无法判断有没有锁 重新
+			// 查询出错 无法判断有没有锁
 			if (err) {
 				console.log("释放一个文件锁失败: ", err);
 				return reject(_status.ERROR);
@@ -101,7 +103,7 @@ locker.release = (fileId, ip) => {
 				return reject(_status.NOFOUND);
 			}
 			
-			// 判断锁是否过期 过期了就是已经解除了 
+			// 释放锁 删除锁记录
 			Lock.deleteOne({"_id": fileId, "owner": ip}, (err, data) => {
 			    if (err) {
 					console.log("释放一个文件锁失败: ", err);

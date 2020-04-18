@@ -33,8 +33,8 @@
 		
 		// 发起请求
 		axios.post("/service/file", {
-			fileName: form.fileName.value,
-			fileContents: form.fileContents.value
+			fileName: form.fileName.value.trim(),
+			fileContents: form.fileContents.value.trim()
 		})
 		.then(
 			function okHandler (e) {

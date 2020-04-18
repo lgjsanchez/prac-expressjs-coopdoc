@@ -10,6 +10,7 @@ const asyncLock = new AsyncLock();
 
 // 定义 入库文件大小
 const fileLimit = 10 * 1000;
+const fileNameLimit = 50;
 
 /**
  * POST /file 
@@ -21,6 +22,11 @@ router.post("/file", (req, rsp, next) => {
 	// 数据校验
 	if (!req.body || !req.body.fileName.trim() || !req.body.fileContents.trim()) {
 		badRsp(rsp, "保存文件失败, 请确认数据");
+		return;
+	}
+	
+	if (req.body.fileName.length > fileNameLimit) {
+		badRsp(rsp, `保存文件失败, 文件名过长, 请不要超过${fileNameLimit}个字符`);
 		return;
 	}
 	
@@ -52,12 +58,14 @@ router.put("/file/:fileId", (req, rsp, next) => {
 		fileId = req.params.fileId;
 	
 	// 数据校验
-	if (!req.body || !req.body.fileContents.trim() || !fileId) {
+	if (!body || !body.fileContents
+		|| isNaN(body.version) || body.version === null
+		|| !fileId) {
 		badRsp(rsp, "保存文件失败, 请确认数据");
 		return;
 	}
 	
-	if (req.body.fileContents.length > fileLimit) {
+	if (body.fileContents.length > fileLimit) {
 		badRsp(rsp, `保存文件失败, 文件内容过多, 请不要超过${fileLimit}个字符`);
 		return;
 	}
@@ -68,31 +76,38 @@ router.put("/file/:fileId", (req, rsp, next) => {
 	    return mylock.get(fileId, req.ip)
 				.then(
 					() => {
-						// 写数据到数据库
-						File.updateOne({"_id": fileId},
-							{fileContents: req.body.fileContents, updateTime: Date.now()}, 
-							(err, data) => {
-								// 更新锁信息失败 则获取锁失败
-								if (err) {
-									console.log("更新文件信息失败: ", err);
-									badRsp(rsp, "更新文件信息失败, 请重试");
-									return;
+						return new Promise((resolve, reject) => {
+							// 根据ID和版本号乐观更新数据库
+							File.updateOne({"_id": fileId, "version": body.version},
+								{"fileContents": body.fileContents, "updateTime": Date.now(), "version": body.version + 1}, 
+								(err, data) => {
+									// 更新锁信息失败 则获取锁失败
+									if (err) {
+										console.log("更新文件信息失败: ", err);
+										return reject("更新文件信息失败, 请重试");
+									}
+									
+									// 释放锁
+									mylock.release(fileId, req.ip);
+									
+									return resolve("更新文件成功");
 								}
-								
-								// 释放锁
-								mylock.release(fileId, req.ip);
-								
-								rsp.send("更新文件成功");
+							);
 						});
 					},
-					(status) => {
-						badRsp(rsp, "更新文件时间过长,其它人正在编辑中");
+					() => {
+						return Promise.reject("更新文件时间过长,其它人正在编辑中")
 					}
 				);
 	})
-	.catch((err) => {
-	    console.log("更新文件失败: ", err.message);
-	});
+	.then(
+		(e) => {
+			rsp.send(e);
+		},
+		(err) => {
+			badRsp(rsp, err);
+		}
+	)
 });
 
 /**

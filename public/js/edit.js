@@ -31,8 +31,8 @@
 		// 发起请求
 		var d = ev.currentTarget.dataset || {};
  		axios.put("/service/file/" + d.id, {
-			fileContents: form.fileContents.value,
-			version: d.version
+			fileContents: form.fileContents.value.trim(),
+			version: +d.version
 		})
 		.then(
 			function okHandler (e) {
@@ -42,7 +42,7 @@
 			},
 			function badHadnler (err) {
 				// 提示操作过期
-				alert(err.response.data.message);
+				alert(err.response.data.message || "更新文件失败");
 				console.warn(err);
 				
 				// 下载用户自己文件到本地 防止丢失
@@ -51,7 +51,7 @@
 				$(`<a href="${download}" download="自己编辑的副本,防止丢失"></a>`)[0].click();
 				
 				// 重载页面
-				location.reload();
+				// location.reload();
 			}
 		);
 	}
