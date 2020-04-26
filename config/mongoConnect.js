@@ -5,7 +5,7 @@ var connection = () => {
 	var _setting = {
 			host: "39.97.243.253:27017", // 云主机
 			db: "file" ,// 连接库
-			auth: "myadmin:secret" ,// 鉴权
+			auth: "xxx:xxx" ,// 鉴权
 			local: false // 本地连接 默认关闭
 		}, 
 		targetDb;
