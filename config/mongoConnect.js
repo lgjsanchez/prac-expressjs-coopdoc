@@ -3,7 +3,7 @@ const mongoose = require('mongoose');  // 引入mongoose
 var connection = () => {
 	// mongoDB连接配置
 	var _setting = {
-			host: "39.97.243.253:27017", // 云主机
+			host: "xxx", // 云主机
 			db: "file" ,// 连接库
 			auth: "xxx:xxx" ,// 鉴权
 			local: false // 本地连接 默认关闭
